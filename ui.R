@@ -23,17 +23,16 @@ dashboardPage(
                                    fluidRow(column(width=6,
                                    selectizeInput("selected",'Stocks',
                                                   choice=unique(tidy_xts$stock))),
-                            column(width=3,dateInput("date", label = "Date Input", value = "2018-01-02",
-                                                     max='2018-12-31')
-                            ),
-                            column(width=3,selectizeInput("typeselect", "Select Types:",
-                                                          choices=unique(stocksLong$type),
-                                                          selected = 'Open')
+                            column(width=6,
+                                   selectizeInput("typeselect", "Select Types:",
+                                                    choices=unique(stocksTidy1$type),
+                                                   selected = 'Open')
+                                
                             )
                           ), 
                           
                           fluidRow(box(dygraphOutput('dygraph')),
-                                   box(plotlyOutput('ggplotly')))
+                                   box(dygraphOutput('dygraph1')))
                                    ))
       
               ),

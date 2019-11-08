@@ -1,6 +1,7 @@
 
 function(input,output){
   
+#dygraphs
   
   output$dygraph <- renderDygraph({
     dygraph(tidy_xts[tidy_xts$stock==input$selected,c(4,5,2)],main='2018 Stock Price')%>%
@@ -9,39 +10,45 @@ function(input,output){
       dySeries("Low", label = "Lowest Price")%>%
       dySeries("Adjusted", label = "Adjusted Price")%>%
       dyRangeSelector(height=20)%>%
-      dyOptions(colors =brewer.pal(3, "Set1"))
+      dyOptions(colors =brewer.pal(3, "Dark2"))
+  })
+  
+  output$dygraph1 <- renderDygraph({
+    dygraph(tidy_xts1[tidy_xts1$type==input$typeselect,2:7],main='2018 Stock Price')%>%
+      dyAxis("x", drawGrid = T)%>%
+      dySeries("AAPL", label = "Apple") %>%
+      dySeries("AMZN", label = "Amazon")%>%
+      dySeries("FB", label = "Facebook")%>%
+      dySeries("GOOG", label = "Google") %>%
+      dySeries("MSFT", label = "Microsoft")%>%
+      dySeries("NFLX", label = "Netflix")%>%
+      dyRangeSelector(height=20)%>%
+      dyOptions(colors =brewer.pal(6, "Dark2"))
   })
 
-  output$ggplotly <- renderPlotly({
-    stocksLong%>%
-      filter(date==input$date,type==input$typeselect)%>%
-      ggplot(aes(x=stock,y=value,fill=stock))+
-      geom_col(position = 'dodge')+theme(legend.position = 'none')+
-      xlab('Type of Prices')+ylab('Stock Prices')+
-      ggtitle('2018 Stock Price')+ylim(0,2000)
-  })
+  # output$ggplotly <- renderPlotly({
+  #   stocksLong%>%
+  #     filter(date==input$date,type==input$typeselect)%>%
+  #     ggplot(aes(x=stock,y=value,fill=stock))+
+  #     geom_col(position = 'dodge')+theme(legend.position = 'none')+
+  #     xlab('Type of Prices')+ylab('Stock Prices')+
+  #     ggtitle('2018 Stock Price')+ylim(0,2000)
+  # })
 
   output$table1 <- DT::renderDataTable({
     datatable(stockstable, rownames=FALSE) 
   })
   
-  terms <- reactive({
-    # Change when the "update" button is pressed...
-    input$update
-    # ...but not for anything else
-    isolate({
-      withProgress({
-        setProgress(message = "Processing corpus...")
-        getTermMatrix(input$selection)
-      })
-    })
-  })
+
   
   #airline
+  #data 
   
   output$table2 <- DT::renderDataTable({
     datatable(tweets[,c(2,4,6,11)], rownames=FALSE) 
   })
+  
+  #bar chart and pie chart
   
   output$ggplotly_bar <- renderPlotly({
     tweets%>%
@@ -70,7 +77,20 @@ function(input,output){
       geom_tile(aes(fill = n))
   })
 
-  # Make the wordcloud drawing predictable during a session
+  #wordcloud 
+  
+  terms <- reactive({
+    # Change when the "update" button is pressed...
+    input$update
+    # ...but not for anything else
+    isolate({
+      withProgress({
+        setProgress(message = "Processing corpus...")
+        getTermMatrix(input$selection)
+      })
+    })
+  })
+  
   wordcloud_rep <- repeatable(wordcloud)
 
   output$plot <- renderPlot({
@@ -80,11 +100,14 @@ function(input,output){
                   colors=brewer.pal(8, "Dark2"))
   })
   
-#sankey
+#supermarket
+#data
   
   output$table3 <- DT::renderDataTable({
     datatable(sales[,c(2:6,13,17,18)], rownames=FALSE) 
   })
+  
+#sankey
   
   output$sankey <- renderSankeyNetwork({
 
@@ -92,9 +115,6 @@ function(input,output){
                   link.color = "Source"
                   )
   })
-
-  
-
   
 }
 
